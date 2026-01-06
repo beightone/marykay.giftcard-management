@@ -1,0 +1,72 @@
+type Transaction {
+  id: String!
+  operation: String!
+  value: Float!
+  balanceAfter: Float!
+  description: String!
+  orderId: String
+  orderNumber: String
+  createdAt: String!
+  createdBy: String
+  source: String!
+  metadata: String
+}
+
+type Voucher {
+  id: ID!
+  nativeId: String!
+  code: String!
+  currentBalance: Float!
+  authorEmail: String!
+  createdAt: String
+  ownerCpf: String
+  ownerEmail: String
+  ownerName: String
+  initialValue: Float!
+  expirationDate: String!
+  isReloadable: Boolean!
+  caption: String
+  status: String!
+  lastTransactionDate: String
+  totalCredited: Float!
+  totalDebited: Float!
+  transactionCount: Int!
+  transactions: [Transaction!]!
+  orderIds: [String!]!
+}
+
+input CreateVoucherInput {
+  initialValue: Float!
+  expirationDate: String!
+  ownerCpf: String
+  caption: String
+  relationName: String!
+  isReloadable: Boolean
+  multipleRedemptions: Boolean
+  currencyCode: String
+}
+
+type Client {
+  id: String!
+  document: String!
+  firstName: String
+  lastName: String
+  email: String
+}
+
+type SyncResult {
+  success: Boolean!
+  transactionsSynced: Int!
+  totalTransactions: Int!
+}
+
+type Query {
+  vouchers: [Voucher!]! @auth(scope: PUBLIC)
+  voucher(id: ID!): Voucher @auth(scope: PUBLIC)
+  searchClientByCpf(cpf: String!): [Client!]! @auth(scope: PUBLIC)
+}
+
+type Mutation {
+  createVoucher(input: CreateVoucherInput!): Voucher! @auth(scope: PUBLIC)
+  syncVoucherHistory(nativeId: String!): SyncResult! @auth(scope: PUBLIC)
+}
