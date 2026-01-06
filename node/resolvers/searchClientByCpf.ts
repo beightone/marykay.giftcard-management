@@ -1,12 +1,4 @@
-interface Context {
-  clients: {
-    masterdata: any
-  }
-  vtex: {
-    account: string
-    workspace: string
-  }
-}
+import type { Context } from './types'
 
 export const searchClientByCpf = async (
   _root: any,
@@ -33,7 +25,7 @@ export const searchClientByCpf = async (
         email: doc.email || '',
       })) || []
     )
-  } catch (error: any) {
+  } catch {
     return []
   }
 }

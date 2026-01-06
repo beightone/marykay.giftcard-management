@@ -12,6 +12,7 @@ export class GiftCardNative extends ExternalClient {
   constructor(ctx: IOContext, opts?: InstanceOptions) {
     super(`http://${ctx.account}.myvtex.com`, ctx, {
       ...opts,
+      timeout: 15000, // Timeout global para todas as requisições
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -35,7 +36,7 @@ export class GiftCardNative extends ExternalClient {
   ): Promise<GiftcardResponse> {
     return this.http.post<GiftcardResponse>(this.routes.create(), payload, {
       metric: 'giftcards-create',
-      timeout: 8000,
+      timeout: 15000,
     })
   }
 
@@ -48,16 +49,43 @@ export class GiftCardNative extends ExternalClient {
       payload,
       {
         metric: 'giftcards-create-transaction',
-        timeout: 10000,
+        timeout: 15000,
       }
     )
   }
 
   public async getCard(id: string): Promise<GiftcardResponse> {
-    return this.http.get<GiftcardResponse>(this.routes.getById(id), {
-      metric: 'giftcards-getById',
-      timeout: 8000,
-    })
+    try {
+      console.log('[GiftCardNative client] getCard request:', {
+        id,
+        route: this.routes.getById(id),
+      })
+
+      const response = await this.http.get<GiftcardResponse>(
+        this.routes.getById(id),
+        {
+          metric: 'giftcards-getById',
+          timeout: 15000,
+        }
+      )
+
+      console.log('[GiftCardNative client] getCard response:', {
+        id: response?.id,
+        balance: response?.balance,
+        redemptionCode: response?.redemptionCode,
+      })
+
+      return response
+    } catch (error) {
+      console.error('[GiftCardNative client] getCard error:', {
+        id,
+        message: error?.message,
+        status: error?.response?.status,
+        statusText: error?.response?.statusText,
+        data: error?.response?.data,
+      })
+      throw error
+    }
   }
 
   public async getTransactions(
@@ -67,9 +95,8 @@ export class GiftCardNative extends ExternalClient {
       this.routes.getTransactions(id),
       {
         metric: 'giftcards-getTransactions',
-        timeout: 8000,
+        timeout: 15000,
       }
     )
   }
 }
-

@@ -1,15 +1,15 @@
-import { calculateVoucherStats, calculateStatus } from '../utils/calculateVoucherStats'
-
-interface Context {
-  clients: {
-    masterdata: any
-    giftCardNative: any
-  }
-  vtex: {
-    account: string
-    workspace: string
-  }
-}
+import {
+  calculateVoucherStats,
+  calculateStatus,
+} from '../utils/calculateVoucherStats'
+import type { Context } from './types'
+import {
+  searchVoucherByNativeId,
+  searchVoucherById,
+  parseTransactions,
+  buildVoucherResponse,
+  extractErrorMessage,
+} from './utils'
 
 export const voucher = async (
   _root: any,
@@ -17,85 +17,57 @@ export const voucher = async (
   context: Context
 ) => {
   try {
-    const mdDocs = await context.clients.masterdata.searchDocuments({
-      dataEntity: 'GiftCardManager',
-      fields: [
-        'id',
-        'nativeId',
-        'authorEmail',
-        'createdAt',
-        'ownerCpf',
-        'ownerEmail',
-        'ownerName',
-        'initialValue',
-        'expirationDate',
-        'isReloadable',
-        'transactions',
-      ],
-      where: `nativeId=${args.id}`,
-      pagination: {
-        page: 1,
-        pageSize: 1,
-      },
-    })
+    const mdDoc =
+      (await searchVoucherByNativeId(context, args.id)) ||
+      (await searchVoucherById(context, args.id))
 
-    if (!mdDocs || mdDocs.length === 0) {
-      throw new Error('Voucher not found')
+    if (!mdDoc) {
+      throw new Error('Voucher not found in MasterData')
     }
 
-    const mdDoc = mdDocs[0]
+    const nativeId = mdDoc.nativeId || args.id
+    let nativeCard: any = null
 
-    const nativeCard = await context.clients.giftCardNative.getCard(args.id).catch(() => null)
+    try {
+      nativeCard = await context.clients.giftCardNative!.getCard(nativeId)
+    } catch {
+      const transactions = parseTransactions(mdDoc.transactions)
+      const stats = calculateVoucherStats(transactions)
+      const status = calculateStatus(
+        0,
+        mdDoc.expirationDate,
+        stats.totalDebited,
+        mdDoc.initialValue || 0
+      )
 
-    if (!nativeCard) {
-      throw new Error('Gift card not found in native API')
-    }
-
-    const transactions: any[] = mdDoc.transactions
-      ? typeof mdDoc.transactions === 'string'
-        ? JSON.parse(mdDoc.transactions)
-        : mdDoc.transactions
-      : []
-
-    const stats = calculateVoucherStats(transactions)
-    const currentBalance = nativeCard.balance || 0
-    const status = calculateStatus(
-      currentBalance,
-      nativeCard.expiringDate || mdDoc.expirationDate,
-      stats.totalDebited,
-      mdDoc.initialValue || 0
-    )
-
-    const orderIds: string[] = []
-    transactions.forEach((tx) => {
-      if (tx.orderId) {
-        orderIds.push(tx.orderId)
+      return {
+        id: mdDoc.id,
+        nativeId: mdDoc.nativeId,
+        code: 'N/A',
+        currentBalance: 0,
+        authorEmail: mdDoc.authorEmail || '',
+        createdAt: mdDoc.createdAt,
+        ownerCpf: mdDoc.ownerCpf || '',
+        ownerEmail: mdDoc.ownerEmail || '',
+        ownerName: mdDoc.ownerName || '',
+        initialValue: mdDoc.initialValue || 0,
+        expirationDate: mdDoc.expirationDate,
+        isReloadable: mdDoc.isReloadable || false,
+        caption: 'N/A',
+        status,
+        lastTransactionDate: stats.lastTransactionDate,
+        totalCredited: stats.totalCredited,
+        totalDebited: stats.totalDebited,
+        transactionCount: stats.transactionCount,
+        transactions,
+        orderIds: [],
       }
-    })
-
-    return {
-      id: mdDoc.id,
-      nativeId: mdDoc.nativeId,
-      code: nativeCard.redemptionCode || '',
-      currentBalance,
-      authorEmail: mdDoc.authorEmail || '',
-      createdAt: mdDoc.createdAt,
-      ownerCpf: mdDoc.ownerCpf || '',
-      ownerEmail: mdDoc.ownerEmail || '',
-      ownerName: mdDoc.ownerName || '',
-      initialValue: mdDoc.initialValue || 0,
-      expirationDate: nativeCard.expiringDate || mdDoc.expirationDate,
-      isReloadable: mdDoc.isReloadable || false,
-      caption: nativeCard.caption || '',
-      status,
-      lastTransactionDate: stats.lastTransactionDate,
-      totalCredited: stats.totalCredited,
-      totalDebited: stats.totalDebited,
-      transactionCount: stats.transactionCount,
-      transactions,
-      orderIds: [...new Set(orderIds)],
     }
-  } catch (error: any) {
-    throw new Error(error?.message || 'Failed to fetch voucher')
+
+    const transactions = parseTransactions(mdDoc.transactions)
+
+    return buildVoucherResponse(mdDoc, nativeCard, transactions)
+  } catch (error) {
+    throw new Error(extractErrorMessage(error))
   }
 }

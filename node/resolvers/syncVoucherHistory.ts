@@ -1,71 +1,54 @@
 import { GiftCardHistoryService } from '../services/giftCardHistory'
-
-interface Context {
-  clients: {
-    masterdata: any
-    giftCardNative: any
-  }
-  vtex: {
-    account: string
-    workspace: string
-  }
-}
+import type { Context } from './types'
+import {
+  searchVoucherByNativeId,
+  updateVoucherDocument,
+  parseTransactions,
+  extractErrorMessage,
+} from './utils'
 
 export const syncVoucherHistory = async (
   _root: any,
   args: { nativeId: string },
   context: Context
 ) => {
-  const { nativeId } = args
-
   try {
-    const mdDocs = await context.clients.masterdata.searchDocuments({
-      dataEntity: 'GiftCardManager',
-      fields: [
-        'id',
-        'nativeId',
-        'expirationDate',
-        'initialValue',
-        'transactions',
-      ],
-      where: `nativeId=${nativeId}`,
-      pagination: {
-        page: 1,
-        pageSize: 1,
-      },
-    })
+    const mdDoc = await searchVoucherByNativeId(context, args.nativeId, [
+      'id',
+      'nativeId',
+      'expirationDate',
+      'initialValue',
+      'transactions',
+    ])
 
-    if (!mdDocs || mdDocs.length === 0) {
+    if (!mdDoc) {
       throw new Error('Voucher not found in MasterData')
     }
 
-    const mdDoc = mdDocs[0]
-    const nativeCard = await context.clients.giftCardNative.getCard(nativeId)
-    const nativeTransactions = await context.clients.giftCardNative.getTransactions(
-      nativeId
+    const nativeCard = await context.clients.giftCardNative!.getCard(
+      args.nativeId
+    )
+    const nativeTransactions = await context.clients.giftCardNative!.getTransactions(
+      args.nativeId
     )
 
-    const existingTransactions: any[] = mdDoc.transactions
-      ? typeof mdDoc.transactions === 'string'
-        ? JSON.parse(mdDoc.transactions)
-        : mdDoc.transactions
-      : []
-
-    let currentBalance = nativeCard.balance || 0
+    const existingTransactions = parseTransactions(mdDoc.transactions)
+    let currentBalance: number = nativeCard.balance || 0
     const newTransactions: any[] = []
 
     nativeTransactions.forEach((nativeTx: any, index: number) => {
       const balanceAfter =
         index === 0
           ? currentBalance
-          : currentBalance - (nativeTx.operation === 'Debit' ? nativeTx.value : -nativeTx.value)
+          : currentBalance -
+            (nativeTx.operation === 'Debit' ? nativeTx.value : -nativeTx.value)
 
       const transformedTx = GiftCardHistoryService.transformNativeTransaction(
         nativeTx,
         balanceAfter
       )
 
-      if (!existingTransactions.find((etx) => etx.id === transformedTx.id)) {
+      if (!existingTransactions.find(etx => etx.id === transformedTx.id)) {
         newTransactions.push(transformedTx)
       }
 
@@ -81,23 +64,36 @@ export const syncVoucherHistory = async (
       newTransactions
     )
 
-    await context.clients.masterdata.updateDocument({
-      dataEntity: 'GiftCardManager',
-      id: mdDoc.id,
-      fields: {
+    console.log('[syncVoucherHistory] Updating MasterData with transactions:', {
+      documentId: mdDoc.id,
+      transactionsCount: mergedTransactions.length,
+      newTransactionsCount: newTransactions.length,
+    })
+
+    try {
+      await updateVoucherDocument(context, mdDoc.id, {
         expirationDate: nativeCard.expiringDate || mdDoc.expirationDate,
         lastSyncedAt: new Date().toISOString(),
-        transactions: JSON.stringify(mergedTransactions),
-      },
-    })
+        transactions: mergedTransactions, // Array direto, não stringify
+      })
+      console.log('[syncVoucherHistory] MasterData updated successfully')
+    } catch (updateError) {
+      console.error('[syncVoucherHistory] Error updating MasterData:', {
+        error: (updateError as any)?.message,
+        response: (updateError as any)?.response?.data,
+        status: (updateError as any)?.response?.status,
+      })
+      throw updateError
+    }
 
     return {
       success: true,
       transactionsSynced: newTransactions.length,
       totalTransactions: mergedTransactions.length,
     }
-  } catch (error: any) {
-    throw new Error(error?.message || 'Failed to sync voucher history')
+  } catch (error) {
+    throw new Error(
+      extractErrorMessage(error) || 'Failed to sync voucher history'
+    )
   }
 }
-

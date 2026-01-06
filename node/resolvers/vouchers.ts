@@ -1,24 +1,15 @@
-import { calculateVoucherStats, calculateStatus } from '../utils/calculateVoucherStats'
+import {
+  calculateVoucherStats,
+  calculateStatus,
+} from '../utils/calculateVoucherStats'
+import type { Context } from './types'
+import { parseTransactions, extractErrorMessage } from './utils'
 
-interface Context {
-  clients: {
-    masterdata: any
-    giftCardNative: any
-  }
-  vtex: {
-    account: string
-    workspace: string
-  }
-}
-
-export const vouchers = async (
-  _root: any,
-  _args: any,
-  context: Context
-) => {
+export const vouchers = async (_root: any, _args: any, context: Context) => {
   try {
     const response = await context.clients.masterdata.searchDocuments({
-      dataEntity: 'GiftCardManager',
+      dataEntity: 'GiftcardManager',
+      schema: 'giftcard-manager-v1',
       fields: [
         'id',
         'nativeId',
@@ -36,19 +27,13 @@ export const vouchers = async (
       },
     })
 
-    const vouchers = await Promise.all(
+    const vouchersList = await Promise.all(
       response.map(async (doc: any) => {
         try {
-          const nativeCard = await context.clients.giftCardNative.getCard(
+          const nativeCard = await context.clients.giftCardNative!.getCard(
             doc.nativeId
           )
-
-          const transactions: any[] = doc.transactions
-            ? typeof doc.transactions === 'string'
-              ? JSON.parse(doc.transactions)
-              : doc.transactions
-            : []
-
+          const transactions = parseTransactions(doc.transactions)
           const stats = calculateVoucherStats(transactions)
           const currentBalance = nativeCard.balance || 0
           const expirationDate = nativeCard.expiringDate || doc.expirationDate
@@ -58,7 +43,6 @@ export const vouchers = async (
             stats.totalDebited,
             doc.initialValue || 0
           )
-
           const code = nativeCard.redemptionCode || ''
           const maskedCode = code
             ? `${code.substring(0, 4)}****${code.substring(code.length - 4)}`
@@ -80,7 +64,7 @@ export const vouchers = async (
             totalDebited: stats.totalDebited,
             transactionCount: stats.transactionCount,
           }
-        } catch (error) {
+        } catch {
           return {
             id: doc.id,
             nativeId: doc.nativeId,
@@ -101,8 +85,8 @@ export const vouchers = async (
       })
     )
 
-    return vouchers
-  } catch (error: any) {
-    throw new Error(error?.message || 'Failed to fetch vouchers')
+    return vouchersList
+  } catch (error) {
+    throw new Error(extractErrorMessage(error) || 'Failed to fetch vouchers')
   }
 }
