@@ -5,5 +5,16 @@
   "admin-example.navigation.details.search.kws": "detalhes, transações, saldo",
   "admin-example.navigation.table.search.kws": "tabela, lista, vouchers",
   "admin-example.hello-world": "Gestão de GiftCards",
-  "admin-example.details": "Detalhes do Voucher"
+  "admin-example.details": "Detalhes do Voucher",
+  "giftcard-manager.details.close": "Fechar",
+  "giftcard-manager.details.basicInfo": "Informações Básicas",
+  "giftcard-manager.details.ownerInfo": "Informações do Proprietário",
+  "giftcard-manager.details.ownerInfo.cpf": "CPF",
+  "giftcard-manager.details.ownerInfo.email": "Email",
+  "giftcard-manager.details.ownerInfo.name": "Nome",
+  "giftcard-manager.details.ownerInfo.phone": "Telefone",
+  "giftcard-manager.details.ownerInfo.address": "Endereço",
+  "giftcard-manager.details.ownerInfo.city": "Cidade",
+  "giftcard-manager.details.ownerInfo.state": "Estado",
+  "giftcard-manager.details.ownerInfo.zip": "CEP"
 }
