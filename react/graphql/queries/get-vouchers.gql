@@ -1,0 +1,17 @@
+query GetVouchers {
+  vouchers {
+    id
+    nativeId
+    code
+    authorEmail
+    ownerCpf
+    ownerName
+    status
+    expirationDate
+    currentBalance
+    initialValue
+    totalCredited
+    totalDebited
+    transactionCount
+  }
+}

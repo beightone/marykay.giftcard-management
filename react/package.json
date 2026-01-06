@@ -12,10 +12,15 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-intl": "^2.7.2",
-    "typescript": "3.9.7"
+    "typescript": "3.9.7",
+    "vtex.giftcard-manager": "https://giftcardmanager--marykayhomolog.myvtex.com/_v/private/typings/linked/v1/vtex.giftcard-manager@0.0.12+build1767714814/public/@types/vtex.giftcard-manager",
+    "vtex.render-runtime": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.render-runtime@8.136.1/public/@types/vtex.render-runtime",
+    "vtex.styleguide": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.styleguide@9.146.16/public/@types/vtex.styleguide"
   },
   "dependencies": {
     "@types/faker": "^4.1.5",
-    "faker": "^4.1.0"
+    "faker": "^4.1.0",
+    "graphql-tag": "^2.12.6",
+    "react-apollo": "^3.1.5"
   }
 }

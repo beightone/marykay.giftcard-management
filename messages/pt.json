@@ -1,9 +1,9 @@
 {
-  "admin-example.navigation.label-group": "Admin de exemplo",
-  "admin-example.navigation.label-table": "Exemplo de tabela",
-  "admin-example.navigation.search.kws": "teste, mock, fake",
-  "admin-example.navigation.details.search.kws": "detalhe, mock, test, oi",
-  "admin-example.navigation.table.search.kws": "tabela, mock, test, tchau",
-  "admin-example.hello-world": "Admin de exemplo",
-  "admin-example.details": "Admin detalhes"
+  "admin-example.navigation.label-group": "Gestão de GiftCards",
+  "admin-example.navigation.label-table": "Listagem de Vouchers",
+  "admin-example.navigation.search.kws": "giftcard, voucher, cpf",
+  "admin-example.navigation.details.search.kws": "detalhes, transações, saldo",
+  "admin-example.navigation.table.search.kws": "tabela, lista, vouchers",
+  "admin-example.hello-world": "Gestão de GiftCards",
+  "admin-example.details": "Detalhes do Voucher"
 }

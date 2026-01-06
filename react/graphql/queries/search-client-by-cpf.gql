@@ -1,0 +1,10 @@
+query SearchClientByCpf($cpf: String!) {
+  searchClientByCpf(cpf: $cpf) {
+    id
+    document
+    firstName
+    lastName
+    email
+  }
+}
+

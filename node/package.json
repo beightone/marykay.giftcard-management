@@ -1,0 +1,19 @@
+{
+  "name": "giftcard-manager-service",
+  "version": "0.1.0",
+  "description": "Backend service for GiftCard Management",
+  "dependencies": {
+    "@vtex/api": "^7.0.0",
+    "co-body": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/co-body": "^0.0.1",
+    "@types/node": "^20.0.0",
+    "typescript": "5.5.3",
+    "vtex.giftcard-manager": "https://giftcardmanager--marykayhomolog.myvtex.com/_v/private/typings/linked/v1/vtex.giftcard-manager@0.0.12+build1767714814/public/@types/vtex.giftcard-manager",
+    "vtex.styleguide": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.styleguide@9.146.16/public/@types/vtex.styleguide"
+  },
+  "scripts": {
+    "lint": "tsc --noEmit && eslint --ext ts ."
+  }
+}

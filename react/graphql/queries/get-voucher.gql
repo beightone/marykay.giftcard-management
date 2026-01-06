@@ -1,0 +1,35 @@
+query GetVoucher($id: ID!) {
+  voucher(id: $id) {
+    id
+    nativeId
+    code
+    currentBalance
+    authorEmail
+    createdAt
+    ownerCpf
+    ownerEmail
+    ownerName
+    initialValue
+    expirationDate
+    isReloadable
+    caption
+    status
+    lastTransactionDate
+    totalCredited
+    totalDebited
+    transactionCount
+    transactions {
+      id
+      operation
+      value
+      balanceAfter
+      description
+      orderId
+      orderNumber
+      createdAt
+      createdBy
+      source
+    }
+    orderIds
+  }
+}

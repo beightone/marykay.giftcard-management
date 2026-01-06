@@ -1,0 +1,15 @@
+mutation CreateVoucher($input: CreateVoucherInput!) {
+  createVoucher(input: $input) {
+    id
+    nativeId
+    code
+    currentBalance
+    authorEmail
+    ownerCpf
+    initialValue
+    expirationDate
+    isReloadable
+    status
+  }
+}
+
