@@ -64,25 +64,13 @@ export const syncVoucherHistory = async (
       newTransactions
     )
 
-    console.log('[syncVoucherHistory] Updating MasterData with transactions:', {
-      documentId: mdDoc.id,
-      transactionsCount: mergedTransactions.length,
-      newTransactionsCount: newTransactions.length,
-    })
-
     try {
       await updateVoucherDocument(context, mdDoc.id, {
         expirationDate: nativeCard.expiringDate || mdDoc.expirationDate,
         lastSyncedAt: new Date().toISOString(),
-        transactions: mergedTransactions, // Array direto, não stringify
+        transactions: mergedTransactions,
       })
-      console.log('[syncVoucherHistory] MasterData updated successfully')
     } catch (updateError) {
-      console.error('[syncVoucherHistory] Error updating MasterData:', {
-        error: (updateError as any)?.message,
-        response: (updateError as any)?.response?.data,
-        status: (updateError as any)?.response?.status,
-      })
       throw updateError
     }
 

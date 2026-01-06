@@ -12,7 +12,7 @@ export class GiftCardNative extends ExternalClient {
   constructor(ctx: IOContext, opts?: InstanceOptions) {
     super(`http://${ctx.account}.myvtex.com`, ctx, {
       ...opts,
-      timeout: 15000, // Timeout global para todas as requisições
+      timeout: 15000,
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -56,11 +56,6 @@ export class GiftCardNative extends ExternalClient {
 
   public async getCard(id: string): Promise<GiftcardResponse> {
     try {
-      console.log('[GiftCardNative client] getCard request:', {
-        id,
-        route: this.routes.getById(id),
-      })
-
       const response = await this.http.get<GiftcardResponse>(
         this.routes.getById(id),
         {
@@ -69,21 +64,8 @@ export class GiftCardNative extends ExternalClient {
         }
       )
 
-      console.log('[GiftCardNative client] getCard response:', {
-        id: response?.id,
-        balance: response?.balance,
-        redemptionCode: response?.redemptionCode,
-      })
-
       return response
     } catch (error) {
-      console.error('[GiftCardNative client] getCard error:', {
-        id,
-        message: error?.message,
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-        data: error?.response?.data,
-      })
       throw error
     }
   }

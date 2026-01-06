@@ -70,29 +70,12 @@ export const adjustVoucherBalance = async (
       [newTransaction]
     )
 
-    console.log(
-      '[adjustVoucherBalance] Updating MasterData with transactions:',
-      {
-        documentId: mdDoc.id,
-        transactionsCount: mergedTransactions.length,
-        transactionsType: Array.isArray(mergedTransactions)
-          ? 'array'
-          : typeof mergedTransactions,
-      }
-    )
-
     try {
       await updateVoucherDocument(context, mdDoc.id, {
         lastSyncedAt: new Date().toISOString(),
-        transactions: mergedTransactions, // Array direto, não stringify
+        transactions: mergedTransactions,
       })
-      console.log('[adjustVoucherBalance] MasterData updated successfully')
     } catch (updateError) {
-      console.error('[adjustVoucherBalance] Error updating MasterData:', {
-        error: (updateError as any)?.message,
-        response: (updateError as any)?.response?.data,
-        status: (updateError as any)?.response?.status,
-      })
       throw updateError
     }
 
@@ -101,7 +84,7 @@ export const adjustVoucherBalance = async (
       throw new Error('Voucher not found after update')
     }
 
-    const finalNativeCard = await context.clients.giftCardNative!.getCard(
+    const finalNativeCard = await context.clients.giftCardNative.getCard(
       nativeId
     )
     const transactions = parseTransactions(voucherDoc.transactions)

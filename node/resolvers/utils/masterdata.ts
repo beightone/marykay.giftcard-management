@@ -70,15 +70,6 @@ export const updateVoucherDocument = async (
   const hasTransactionsArray =
     fields.transactions && Array.isArray(fields.transactions)
 
-  console.log('[updateVoucherDocument] Updating document:', {
-    id,
-    fields: Object.keys(fields),
-    transactionsType: hasTransactionsArray
-      ? 'array'
-      : typeof fields.transactions,
-    transactionsLength: hasTransactionsArray ? fields.transactions.length : 0,
-  })
-
   try {
     // Se está atualizando o array de transactions, pode precisar usar updateDocument completo
     // ou serializar como JSON string dependendo do MasterData V2
@@ -93,15 +84,11 @@ export const updateVoucherDocument = async (
           id,
           fields,
         })
-        console.log('[updateVoucherDocument] updatePartialDocument success')
         return result
       } catch (partialError) {
         // Se updatePartialDocument falhar e estivermos atualizando transactions,
         // tenta serializar como JSON string
         if (hasTransactionsArray) {
-          console.log(
-            '[updateVoucherDocument] updatePartialDocument failed, trying with JSON string for transactions'
-          )
           const fieldsWithString = {
             ...fields,
             transactions: JSON.stringify(fields.transactions),
@@ -113,9 +100,6 @@ export const updateVoucherDocument = async (
               id,
               fields: fieldsWithString,
             }
-          )
-          console.log(
-            '[updateVoucherDocument] updatePartialDocument with JSON string success'
           )
           return result
         }
@@ -130,31 +114,8 @@ export const updateVoucherDocument = async (
       id,
       fields,
     })
-    console.log('[updateVoucherDocument] updateDocument success')
     return result
   } catch (error) {
-    const errorResponse = (error as any)?.response?.data
-    const errorDetails = {
-      message: (error as any)?.message,
-      status: (error as any)?.response?.status,
-      statusText: (error as any)?.response?.statusText,
-      responseData: errorResponse,
-    }
-
-    // Log detalhado do erro
-    console.error(
-      '[updateVoucherDocument] Error details:',
-      JSON.stringify(errorDetails, null, 2)
-    )
-
-    // Log específico dos erros de validação
-    if (errorResponse?.errors) {
-      console.error('[updateVoucherDocument] Validation errors:')
-      errorResponse.errors.forEach((err: any, index: number) => {
-        console.error(`  [${index}]`, JSON.stringify(err, null, 2))
-      })
-    }
-
     throw error
   }
 }

@@ -98,9 +98,9 @@ export const createVoucher = async (
       nativeId: nativeCard.id,
       authorEmail,
       createdAt: new Date().toISOString(),
-      ownerCpf: input.ownerCpf || null,
-      ownerEmail: clientInfo.email || null,
-      ownerName: clientInfo.name || null,
+      ownerCpf: input.ownerCpf ?? null,
+      ownerEmail: clientInfo.email ?? null,
+      ownerName: clientInfo.name ?? null,
       initialValue: input.initialValue,
       expirationDate: input.expirationDate,
       isReloadable: input.isReloadable || false,
@@ -134,23 +134,19 @@ export const createVoucher = async (
       code: nativeCard.redemptionCode,
       currentBalance,
       authorEmail,
-      ownerCpf: input.ownerCpf || '',
+      ownerCpf: input.ownerCpf ?? '',
       initialValue: input.initialValue,
       expirationDate: nativeCard.expiringDate || input.expirationDate,
-      isReloadable: input.isReloadable || false,
+      isReloadable: input.isReloadable ?? false,
       status,
     }
   } catch (error) {
     if (nativeCard?.id) {
-      console.error(
-        '[createVoucher] CRITICAL: Native GiftCard created but operation failed:',
-        { nativeCardId: nativeCard.id, error }
+      throw new Error(
+        `Failed to create voucher. Native GiftCard created but operation failed: ${nativeCard.id}`
       )
     }
 
-    throw new Error(
-      extractErrorMessage(error) ||
-        'Failed to create voucher. Check logs for details.'
-    )
+    throw new Error(extractErrorMessage(error) || 'Failed to create voucher')
   }
 }
