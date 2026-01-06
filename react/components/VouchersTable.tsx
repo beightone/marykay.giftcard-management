@@ -1,10 +1,13 @@
 import React from 'react'
 import { Table } from 'vtex.styleguide'
+import type { InjectedIntlProps } from 'react-intl'
+import { injectIntl } from 'react-intl'
 
 interface Voucher {
   id: string
   code: string
   authorEmail: string
+  nativeId: string
   ownerCpf: string
   status: string
   expirationDate: string
@@ -12,16 +15,19 @@ interface Voucher {
   initialValue: number
 }
 
-interface VouchersTableProps {
+interface VouchersTableProps extends InjectedIntlProps {
   vouchers: Voucher[]
   loading: boolean
   onRowClick: (voucher: Voucher) => void
+  onCreateClick: () => void
 }
 
 const VouchersTable: React.FC<VouchersTableProps> = ({
   vouchers,
   loading,
   onRowClick,
+  onCreateClick,
+  intl,
 }) => {
   const schema = {
     properties: {
@@ -29,8 +35,8 @@ const VouchersTable: React.FC<VouchersTableProps> = ({
         title: 'Code',
         cellRenderer: ({ cellData }: { cellData: string }) => {
           if (!cellData) return ''
-          const last4 = cellData.length > 4 ? cellData.slice(-4) : cellData
-          return `****-****-****-${last4}`
+
+          return cellData
         },
       },
       authorEmail: {
@@ -48,6 +54,7 @@ const VouchersTable: React.FC<VouchersTableProps> = ({
               : cellData === 'expired'
               ? '#FF4C4C'
               : '#CCCCCC'
+
           return (
             <span style={{ color: statusColor, textTransform: 'capitalize' }}>
               {cellData}
@@ -73,14 +80,23 @@ const VouchersTable: React.FC<VouchersTableProps> = ({
       onRowClick={({ rowData }: { rowData: Voucher }) => onRowClick(rowData)}
       toolbar={{
         inputSearch: {
-          placeholder: 'Search by CPF...',
+          placeholder: intl.formatMessage({
+            id: 'giftcard-manager.searchPlaceholder',
+            defaultMessage: 'Search by CPF...',
+          }),
           value: '',
           onChange: () => {},
+        },
+        newLine: {
+          label: intl.formatMessage({
+            id: 'giftcard-manager.createNew',
+            defaultMessage: 'Create New',
+          }),
+          handleCallback: onCreateClick,
         },
       }}
     />
   )
 }
 
-export default VouchersTable
-
+export default injectIntl(VouchersTable)

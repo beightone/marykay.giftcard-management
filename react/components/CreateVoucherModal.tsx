@@ -1,10 +1,20 @@
 import React, { useState } from 'react'
-import { Modal, Input, Button, DatePicker, Toggle, Alert } from 'vtex.styleguide'
+import {
+  Modal,
+  Input,
+  Button,
+  DatePicker,
+  Toggle,
+  Alert,
+} from 'vtex.styleguide'
 import { Mutation } from 'react-apollo'
+import { FormattedMessage, injectIntl } from 'react-intl'
+import type { InjectedIntlProps } from 'react-intl'
+
 import CREATE_VOUCHER from '../graphql/mutations/create-voucher.gql'
 import ClientSearch from './ClientSearch'
 
-interface CreateVoucherModalProps {
+interface CreateVoucherModalProps extends InjectedIntlProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
@@ -22,6 +32,7 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
+  intl,
 }) => {
   const [initialValue, setInitialValue] = useState('')
   const [expirationDate, setExpirationDate] = useState('')
@@ -53,6 +64,7 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
   const handleSubmit = async (createVoucher: any) => {
     if (!initialValue || !expirationDate || !relationName) {
       setError('Initial value, expiration date, and relation name are required')
+
       return
     }
 
@@ -86,7 +98,14 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Create Gift Card">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={intl.formatMessage({
+        id: 'giftcard-manager.create.title',
+        defaultMessage: 'Create Gift Card',
+      })}
+    >
       {error && (
         <div className="mb5">
           <Alert type="error" onClose={() => setError('')}>
@@ -102,7 +121,7 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
       <Mutation mutation={CREATE_VOUCHER}>
         {(createVoucher: any, { loading: creating }: any) => (
           <form
-            onSubmit={(e) => {
+            onSubmit={e => {
               e.preventDefault()
               handleSubmit(createVoucher)
             }}
@@ -132,11 +151,11 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
               <ClientSearch
                 cpf={ownerCpf}
                 selectedClient={selectedClient}
-                onCpfChange={(cpf) => {
+                onCpfChange={cpf => {
                   setOwnerCpf(cpf)
                   setSelectedClient(null)
                 }}
-                onClientSelect={(client) => {
+                onClientSelect={client => {
                   setSelectedClient(client)
                   setOwnerCpf(client.document)
                 }}
@@ -204,7 +223,8 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
                 }
               />
               <small className="c-muted-1">
-                Allows the gift card to be used multiple times until balance is zero
+                Allows the gift card to be used multiple times until balance is
+                zero
               </small>
             </div>
             <div className="flex justify-end mt5">
@@ -213,7 +233,10 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
                 onClick={handleClose}
                 disabled={creating}
               >
-                Cancel
+                <FormattedMessage
+                  id="giftcard-manager.create.cancel"
+                  defaultMessage="Cancel"
+                />
               </Button>
               <Button
                 type="submit"
@@ -221,7 +244,10 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
                 isLoading={creating}
                 disabled={creating}
               >
-                Create Voucher
+                <FormattedMessage
+                  id="giftcard-manager.create.createVoucher"
+                  defaultMessage="Create Voucher"
+                />
               </Button>
             </div>
           </form>
@@ -231,5 +257,4 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
   )
 }
 
-export default CreateVoucherModal
-
+export default injectIntl(CreateVoucherModal)

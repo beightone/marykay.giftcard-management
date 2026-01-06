@@ -1,0 +1,4 @@
+mutation DeleteVoucher($nativeId: String!) {
+  deleteVoucher(nativeId: $nativeId)
+}
+

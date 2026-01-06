@@ -1,0 +1,17 @@
+mutation AdjustBalance($input: AdjustBalanceInput!) {
+  adjustVoucherBalance(input: $input) {
+    id
+    nativeId
+    code
+    currentBalance
+    transactions {
+      id
+      operation
+      value
+      balanceAfter
+      description
+      createdAt
+    }
+  }
+}
+

@@ -1,18 +1,27 @@
 import React, { useState, useRef } from 'react'
 import { Layout, PageBlock, PageHeader } from 'vtex.styleguide'
 import { Query } from 'react-apollo'
+import { injectIntl, InjectedIntlProps } from 'react-intl'
+
 import GET_VOUCHERS from './graphql/queries/get-vouchers.gql'
-import { VouchersTable, CreateVoucherModal, VoucherDetailsModal } from './components'
+import {
+  VouchersTable,
+  CreateVoucherModal,
+  VoucherDetailsModal,
+} from './components'
 import './styles.global.css'
 
-const AdminGiftCardManager: React.FC = () => {
+const AdminGiftCardManager: React.FC<InjectedIntlProps> = ({ intl }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(null)
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string | null>(
+    null
+  )
+
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const refetchRef = useRef<(() => void) | null>(null)
 
-  const handleRowClick = (voucher: { id: string }) => {
-    setSelectedVoucherId(voucher.id)
+  const handleRowClick = (voucher: { nativeId: string }) => {
+    setSelectedVoucherId(voucher.nativeId)
     setIsDetailsModalOpen(true)
   }
 
@@ -26,9 +35,10 @@ const AdminGiftCardManager: React.FC = () => {
     <Layout
       pageHeader={
         <PageHeader
-          title="Gift Cards Manager"
-          linkLabel="Create New"
-          onLinkClick={() => setIsCreateModalOpen(true)}
+          title={intl.formatMessage({
+            id: 'giftcard-manager.title',
+            defaultMessage: 'Gift Cards Manager',
+          })}
         />
       }
     >
@@ -36,6 +46,7 @@ const AdminGiftCardManager: React.FC = () => {
         <Query query={GET_VOUCHERS}>
           {({ data, loading, refetch }: any) => {
             const vouchers = data?.vouchers || []
+
             refetchRef.current = refetch
 
             return (
@@ -44,6 +55,7 @@ const AdminGiftCardManager: React.FC = () => {
                   vouchers={vouchers}
                   loading={loading}
                   onRowClick={handleRowClick}
+                  onCreateClick={() => setIsCreateModalOpen(true)}
                 />
                 <CreateVoucherModal
                   isOpen={isCreateModalOpen}
@@ -57,6 +69,7 @@ const AdminGiftCardManager: React.FC = () => {
                     setIsDetailsModalOpen(false)
                     setSelectedVoucherId(null)
                   }}
+                  onSuccess={handleCreateSuccess}
                 />
               </>
             )
@@ -67,5 +80,4 @@ const AdminGiftCardManager: React.FC = () => {
   )
 }
 
-export default AdminGiftCardManager
-
+export default injectIntl(AdminGiftCardManager)
