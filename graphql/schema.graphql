@@ -66,7 +66,15 @@ type Query {
   searchClientByCpf(cpf: String!): [Client!]! @auth(scope: PUBLIC)
 }
 
+input AdjustBalanceInput {
+  nativeId: String!
+  value: Float!
+  description: String!
+}
+
 type Mutation {
   createVoucher(input: CreateVoucherInput!): Voucher! @auth(scope: PUBLIC)
   syncVoucherHistory(nativeId: String!): SyncResult! @auth(scope: PUBLIC)
+  adjustVoucherBalance(input: AdjustBalanceInput!): Voucher! @auth(scope: PUBLIC)
+  deleteVoucher(nativeId: String!): Boolean! @auth(scope: PUBLIC)
 }

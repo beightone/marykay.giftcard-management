@@ -6,6 +6,8 @@ import { vouchers } from './resolvers/vouchers'
 import { voucher } from './resolvers/voucher'
 import { searchClientByCpf } from './resolvers/searchClientByCpf'
 import { syncVoucherHistory } from './resolvers/syncVoucherHistory'
+import { adjustVoucherBalance } from './resolvers/adjustVoucherBalance'
+import { deleteVoucher } from './resolvers/deleteVoucher'
 
 const clients = {
   implementation: Clients,
@@ -24,6 +26,8 @@ export default new Service({
       Mutation: {
         createVoucher,
         syncVoucherHistory,
+        adjustVoucherBalance,
+        deleteVoucher,
       },
     },
   },
