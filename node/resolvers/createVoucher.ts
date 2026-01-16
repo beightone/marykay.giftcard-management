@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto'
 
 import { GiftCardHistoryService } from '../services/giftCardHistory'
+import type { GiftcardResponse } from '../types/giftcard.client'
 import { calculateStatus } from '../utils/calculateVoucherStats'
 import type { Context } from './types'
 import {
@@ -22,14 +23,27 @@ interface CreateVoucherInput {
   currencyCode?: string
 }
 
+interface CreateVoucherResult {
+  id: string
+  nativeId: string
+  code: string
+  currentBalance: number
+  authorEmail: string
+  ownerCpf: string
+  initialValue: number
+  expirationDate: string
+  isReloadable: boolean
+  status: string
+}
+
 export const createVoucher = async (
-  _root: any,
+  _root: unknown,
   args: { input: CreateVoucherInput },
   context: Context
-) => {
+): Promise<CreateVoucherResult> => {
   const { input } = args
   const authorEmail = getAuthorEmail(context)
-  let nativeCard: any = null
+  let nativeCard: GiftcardResponse | null = null
 
   try {
     let profileId: string | null = null
@@ -59,7 +73,7 @@ export const createVoucher = async (
     const cardPayload = {
       relationName: input.relationName,
       expiringDate: formattedExpirationDate,
-      caption: input.caption || 'Gift Card',
+      caption: input.caption ?? 'Gift Card',
       profileId,
       restrictedToOwner: true,
       currencyCode: input.currencyCode ?? 'BRL',
@@ -67,10 +81,10 @@ export const createVoucher = async (
       multipleRedemptions: input.multipleRedemptions ?? true,
     }
 
-    nativeCard = await context.clients.giftCardNative!.createCard(cardPayload)
+    nativeCard = await context.clients.giftCardNative.createCard(cardPayload)
 
     const requestId = randomUUID()
-    const transactionResult = await context.clients.giftCardNative!.createTransaction(
+    const transactionResult = await context.clients.giftCardNative.createTransaction(
       nativeCard.id,
       {
         operation: 'Credit',
@@ -94,30 +108,44 @@ export const createVoucher = async (
       authorEmail
     )
 
-    const masterDataDocument: any = {
+    interface VoucherDocumentInput {
+      nativeId: string
+      authorEmail: string
+      createdAt: string
+      ownerCpf?: string
+      ownerEmail?: string
+      ownerName?: string
+      initialValue: number
+      expirationDate: string
+      isReloadable: boolean
+      lastSyncedAt: string
+      transactions: Array<typeof initialTransaction>
+    }
+
+    const masterDataDocument: VoucherDocumentInput = {
       nativeId: nativeCard.id,
       authorEmail,
       createdAt: new Date().toISOString(),
-      ownerCpf: input.ownerCpf ?? null,
-      ownerEmail: clientInfo.email ?? null,
-      ownerName: clientInfo.name ?? null,
+      ownerCpf: input.ownerCpf,
+      ownerEmail: clientInfo.email,
+      ownerName: clientInfo.name,
       initialValue: input.initialValue,
       expirationDate: input.expirationDate,
-      isReloadable: input.isReloadable || false,
+      isReloadable: input.isReloadable ?? false,
       lastSyncedAt: new Date().toISOString(),
       transactions: [initialTransaction],
     }
 
-    Object.keys(masterDataDocument).forEach(key => {
-      if (masterDataDocument[key] === null || masterDataDocument[key] === '') {
-        delete masterDataDocument[key]
-      }
-    })
+    const documentToSave = Object.fromEntries(
+      Object.entries(masterDataDocument).filter(
+        ([, value]) => value !== undefined && value !== null && value !== ''
+      )
+    )
 
     await context.clients.masterdata.createDocument({
       dataEntity: 'GiftcardManager',
       schema: 'giftcard-manager-v1',
-      fields: masterDataDocument,
+      fields: documentToSave,
     })
 
     const currentBalance = nativeCard.balance || input.initialValue
