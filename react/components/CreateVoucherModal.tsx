@@ -41,7 +41,6 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
   const [relationName, setRelationName] = useState('')
   const [isReloadable, setIsReloadable] = useState(false)
   const [multipleRedemptions, setMultipleRedemptions] = useState(true)
-  const [currencyCode, setCurrencyCode] = useState('BRL')
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -54,7 +53,6 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
     setRelationName('')
     setIsReloadable(false)
     setMultipleRedemptions(true)
-    setCurrencyCode('BRL')
     setSelectedClient(null)
     setError('')
     setSuccess(false)
@@ -63,7 +61,13 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
 
   const handleSubmit = async (createVoucher: any) => {
     if (!initialValue || !expirationDate || !relationName) {
-      setError('Initial value, expiration date, and relation name are required')
+      setError(
+        intl.formatMessage({
+          id: 'giftcard-manager.create.error.required',
+          defaultMessage:
+            'Initial value, expiration date, and relation name are required',
+        })
+      )
 
       return
     }
@@ -82,7 +86,7 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
             relationName,
             isReloadable,
             multipleRedemptions,
-            currencyCode: currencyCode || undefined,
+            currencyCode: 'BRL',
           },
         },
       })
@@ -115,7 +119,12 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
       )}
       {success && (
         <div className="mb5">
-          <Alert type="success">Gift Card created successfully!</Alert>
+          <Alert type="success">
+            {intl.formatMessage({
+              id: 'giftcard-manager.create.success',
+              defaultMessage: 'Gift Card created successfully!',
+            })}
+          </Alert>
         </div>
       )}
       <Mutation mutation={CREATE_VOUCHER}>
@@ -128,7 +137,10 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
           >
             <div className="mb5">
               <Input
-                label="Initial Value"
+                label={intl.formatMessage({
+                  id: 'giftcard-manager.create.initialValue',
+                  defaultMessage: 'Initial Value',
+                })}
                 type="number"
                 step="0.01"
                 value={initialValue}
@@ -140,10 +152,13 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
             </div>
             <div className="mb5">
               <DatePicker
-                label="Expiration Date"
+                label={intl.formatMessage({
+                  id: 'giftcard-manager.create.expirationDate',
+                  defaultMessage: 'Expiration Date',
+                })}
                 value={expirationDate}
                 onChange={(date: string) => setExpirationDate(date)}
-                locale="en-US"
+                locale="pt-BR"
                 required
               />
             </div>
@@ -167,64 +182,80 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
             </div>
             <div className="mb5">
               <Input
-                label="Relation Name *"
+                label={intl.formatMessage({
+                  id: 'giftcard-manager.create.relationName',
+                  defaultMessage: 'Relation Name *',
+                })}
                 value={relationName}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setRelationName(e.target.value)
                 }
-                placeholder="e.g., loyalty-program, promotion, refund"
+                placeholder={intl.formatMessage({
+                  id: 'giftcard-manager.create.relationNamePlaceholder',
+                  defaultMessage: 'e.g., loyalty-program, promotion, refund',
+                })}
                 required
               />
               <small className="c-muted-1">
-                Represents the relationship between the client and the store
+                {intl.formatMessage({
+                  id: 'giftcard-manager.create.relationNameHint',
+                  defaultMessage:
+                    'Represents the relationship between the client and the store',
+                })}
               </small>
             </div>
             <div className="mb5">
               <Input
-                label="Caption"
+                label={intl.formatMessage({
+                  id: 'giftcard-manager.create.caption',
+                  defaultMessage: 'Caption',
+                })}
                 value={caption}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setCaption(e.target.value)
                 }
-                placeholder="Optional caption"
+                placeholder={intl.formatMessage({
+                  id: 'giftcard-manager.create.captionPlaceholder',
+                  defaultMessage: 'Optional caption',
+                })}
               />
-            </div>
-            <div className="mb5">
-              <Input
-                label="Currency Code"
-                value={currencyCode}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setCurrencyCode(e.target.value)
-                }
-                placeholder="BRL"
-              />
-              <small className="c-muted-1">
-                ISO currency code (e.g., BRL, USD, EUR)
-              </small>
             </div>
             <div className="mb5">
               <Toggle
-                label="Is Reloadable"
+                label={intl.formatMessage({
+                  id: 'giftcard-manager.create.isReloadable',
+                  defaultMessage: 'Is Reloadable',
+                })}
                 checked={isReloadable}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setIsReloadable(e.target.checked)
                 }
               />
               <small className="c-muted-1">
-                Allows multiple credits to be added to this gift card
+                {intl.formatMessage({
+                  id: 'giftcard-manager.create.isReloadableHint',
+                  defaultMessage:
+                    'Allows multiple credits to be added to this gift card',
+                })}
               </small>
             </div>
             <div className="mb5">
               <Toggle
-                label="Multiple Redemptions"
+                label={intl.formatMessage({
+                  id: 'giftcard-manager.create.multipleRedemptions',
+                  defaultMessage: 'Multiple Redemptions',
+                })}
                 checked={multipleRedemptions}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setMultipleRedemptions(e.target.checked)
                 }
               />
               <small className="c-muted-1">
-                Allows the gift card to be used multiple times until balance is
-                zero
+                {intl.formatMessage({
+                  id: 'giftcard-manager.create.multipleRedemptionsHint',
+                  defaultMessage:
+                    'Allows the gift card to be used multiple times until balance is zero',
+                })}
               </small>
             </div>
             <div className="flex justify-end mt5">

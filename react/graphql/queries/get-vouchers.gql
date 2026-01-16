@@ -4,12 +4,14 @@ query GetVouchers {
     nativeId
     code
     authorEmail
+    createdAt
     ownerCpf
     ownerName
     status
     expirationDate
     currentBalance
     initialValue
+    isReloadable
     totalCredited
     totalDebited
     transactionCount
