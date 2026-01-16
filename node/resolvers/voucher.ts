@@ -1,4 +1,4 @@
-import {
+﻿import {
   calculateVoucherStats,
   calculateStatus,
 } from '../utils/calculateVoucherStats'
@@ -35,7 +35,7 @@ export const voucher = async (
       const stats = calculateVoucherStats(transactions)
       const status = calculateStatus(
         0,
-        mdDoc.expirationDate,
+        mdDoc.expirationDate ?? '',
         stats.totalDebited,
         mdDoc.initialValue || 0
       )
@@ -71,3 +71,5 @@ export const voucher = async (
     throw new Error(extractErrorMessage(error))
   }
 }
+
+

@@ -1,14 +1,14 @@
 interface Transaction {
   operation: string
   value: number
-  createdAt: string
+  createdAt?: string
 }
 
 export const calculateVoucherStats = (transactions: Transaction[]) => {
   let totalCredited = 0
   let totalDebited = 0
 
-  transactions.forEach((tx) => {
+  transactions.forEach(tx => {
     if (tx.operation === 'Credit') {
       totalCredited += tx.value
     } else if (tx.operation === 'Debit') {
@@ -16,15 +16,14 @@ export const calculateVoucherStats = (transactions: Transaction[]) => {
     }
   })
 
-  const lastTransaction = transactions.length > 0
-    ? transactions[transactions.length - 1]
-    : null
+  const lastTransaction =
+    transactions.length > 0 ? transactions[transactions.length - 1] : null
 
   return {
     totalCredited,
     totalDebited,
     transactionCount: transactions.length,
-    lastTransactionDate: lastTransaction?.createdAt || null,
+    lastTransactionDate: lastTransaction?.createdAt ?? null,
   }
 }
 

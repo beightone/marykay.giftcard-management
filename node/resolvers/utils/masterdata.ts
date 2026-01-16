@@ -1,4 +1,4 @@
-import type { Context } from '../types'
+import type { Context, VoucherDocument, ClientProfile } from '../types'
 
 export const searchVoucherByNativeId = async (
   context: Context,
@@ -16,8 +16,8 @@ export const searchVoucherByNativeId = async (
     'isReloadable',
     'transactions',
   ]
-) => {
-  const docs = await context.clients.masterdata.searchDocuments({
+): Promise<VoucherDocument | null> => {
+  const docs = await context.clients.masterdata.searchDocuments<VoucherDocument>({
     dataEntity: 'GiftcardManager',
     schema: 'giftcard-manager-v1',
     fields,
@@ -47,8 +47,8 @@ export const searchVoucherById = async (
     'isReloadable',
     'transactions',
   ]
-) => {
-  const docs = await context.clients.masterdata.searchDocuments({
+): Promise<VoucherDocument | null> => {
+  const docs = await context.clients.masterdata.searchDocuments<VoucherDocument>({
     dataEntity: 'GiftcardManager',
     schema: 'giftcard-manager-v1',
     fields,
@@ -65,8 +65,8 @@ export const searchVoucherById = async (
 export const updateVoucherDocument = async (
   context: Context,
   id: string,
-  fields: Record<string, any>
-) => {
+  fields: Record<string, unknown>
+): Promise<unknown> => {
   const hasTransactionsArray =
     fields.transactions && Array.isArray(fields.transactions)
 
@@ -74,47 +74,35 @@ export const updateVoucherDocument = async (
     // Se está atualizando o array de transactions, pode precisar usar updateDocument completo
     // ou serializar como JSON string dependendo do MasterData V2
     // Tentamos primeiro updatePartialDocument
-    if (
-      typeof context.clients.masterdata.updatePartialDocument === 'function'
-    ) {
-      try {
+    try {
+      const result = await context.clients.masterdata.updatePartialDocument({
+        dataEntity: 'GiftcardManager',
+        schema: 'giftcard-manager-v1',
+        id,
+        fields,
+      })
+
+      return result
+    } catch (partialError) {
+      // Se updatePartialDocument falhar e estivermos atualizando transactions,
+      // tenta serializar como JSON string
+      if (hasTransactionsArray) {
+        const fieldsWithString = {
+          ...fields,
+          transactions: JSON.stringify(fields.transactions),
+        }
         const result = await context.clients.masterdata.updatePartialDocument({
           dataEntity: 'GiftcardManager',
           schema: 'giftcard-manager-v1',
           id,
-          fields,
+          fields: fieldsWithString,
         })
-        return result
-      } catch (partialError) {
-        // Se updatePartialDocument falhar e estivermos atualizando transactions,
-        // tenta serializar como JSON string
-        if (hasTransactionsArray) {
-          const fieldsWithString = {
-            ...fields,
-            transactions: JSON.stringify(fields.transactions),
-          }
-          const result = await context.clients.masterdata.updatePartialDocument(
-            {
-              dataEntity: 'GiftcardManager',
-              schema: 'giftcard-manager-v1',
-              id,
-              fields: fieldsWithString,
-            }
-          )
-          return result
-        }
-        throw partialError
-      }
-    }
 
-    // Fallback to updateDocument if updatePartialDocument doesn't exist
-    const result = await context.clients.masterdata.updateDocument({
-      dataEntity: 'GiftcardManager',
-      schema: 'giftcard-manager-v1',
-      id,
-      fields,
-    })
-    return result
+        return result
+      }
+
+      throw partialError
+    }
   } catch (error) {
     throw error
   }
@@ -125,7 +113,7 @@ export const findProfileIdByCpf = async (
   cpf: string
 ): Promise<string | null> => {
   try {
-    const response = await context.clients.masterdata.searchDocuments({
+    const response = await context.clients.masterdata.searchDocuments<ClientProfile>({
       dataEntity: 'CL',
       fields: ['userId'],
       where: `document=${cpf}`,
@@ -135,7 +123,7 @@ export const findProfileIdByCpf = async (
       },
     })
 
-    return response && response.length > 0 ? response[0].userId : null
+    return response && response.length > 0 ? response[0].userId ?? null : null
   } catch {
     return null
   }
@@ -150,7 +138,7 @@ export const getClientInfo = async (
   }
 
   try {
-    const response = await context.clients.masterdata.searchDocuments({
+    const response = await context.clients.masterdata.searchDocuments<ClientProfile>({
       dataEntity: 'CL',
       fields: ['email', 'firstName', 'lastName'],
       where: `document=${cpf}`,
@@ -162,9 +150,10 @@ export const getClientInfo = async (
 
     if (response && response.length > 0) {
       const client = response[0]
+
       return {
-        email: client.email || '',
-        name: `${client.firstName || ''} ${client.lastName || ''}`.trim(),
+        email: client.email ?? '',
+        name: `${client.firstName ?? ''} ${client.lastName ?? ''}`.trim(),
       }
     }
   } catch {
