@@ -8,7 +8,7 @@ import {
 } from './utils'
 
 export const syncVoucherHistory = async (
-  _root: any,
+  _root: unknown,
   args: { nativeId: string },
   context: Context
 ) => {

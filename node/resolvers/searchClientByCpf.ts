@@ -1,12 +1,12 @@
-import type { Context } from './types'
+import type { Context, ClientProfile } from './types'
 
 export const searchClientByCpf = async (
-  _root: any,
+  _root: unknown,
   args: { cpf: string },
   context: Context
 ) => {
   try {
-    const response = await context.clients.masterdata.searchDocuments({
+    const response = await context.clients.masterdata.searchDocuments<ClientProfile & { id: string }>({
       dataEntity: 'CL',
       fields: ['id', 'document', 'firstName', 'lastName', 'email'],
       where: `document=${args.cpf}`,
@@ -17,13 +17,13 @@ export const searchClientByCpf = async (
     })
 
     return (
-      response?.map((doc: any) => ({
+      response?.map(doc => ({
         id: doc.id,
-        document: doc.document || args.cpf,
-        firstName: doc.firstName || '',
-        lastName: doc.lastName || '',
-        email: doc.email || '',
-      })) || []
+        document: doc.document ?? args.cpf,
+        firstName: doc.firstName ?? '',
+        lastName: doc.lastName ?? '',
+        email: doc.email ?? '',
+      })) ?? []
     )
   } catch {
     return []
