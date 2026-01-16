@@ -10,7 +10,7 @@ import {
 } from './utils'
 
 export const adjustVoucherBalance = async (
-  _root: any,
+  _root: unknown,
   args: { input: { nativeId: string; value: number; description: string } },
   context: Context
 ) => {
