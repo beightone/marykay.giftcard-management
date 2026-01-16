@@ -2,7 +2,7 @@ import type { Context } from './types'
 import { searchVoucherByNativeId, extractErrorMessage } from './utils'
 
 export const deleteVoucher = async (
-  _root: any,
+  _root: unknown,
   args: { nativeId: string },
   context: Context
 ) => {
