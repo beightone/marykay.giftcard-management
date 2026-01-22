@@ -56,13 +56,20 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
   ) => {
     if (!balanceAmount || !balanceDescription || !voucherId) {
       setError('Amount and description are required')
+
       return
     }
 
-    const value =
-      operation === 'add'
-        ? parseFloat(balanceAmount)
-        : -parseFloat(balanceAmount)
+    const normalizedAmount = balanceAmount.replace(',', '.')
+    const parsedValue = parseFloat(normalizedAmount)
+
+    if (isNaN(parsedValue) || parsedValue <= 0) {
+      setError('Please enter a valid amount')
+
+      return
+    }
+
+    const value = operation === 'add' ? parsedValue : -parsedValue
 
     setError('')
     setSuccess('')
@@ -101,6 +108,7 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
           refetchRef.current?.()
         }, 500)
       }
+
       if (onSuccess) {
         setTimeout(() => {
           onSuccess()
@@ -139,6 +147,7 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
         }),
         cellRenderer: ({ cellData }: { cellData: string }) => {
           const color = cellData === 'Credit' ? '#79B03A' : '#FF4C4C'
+
           return <span style={{ color, fontWeight: 'bold' }}>{cellData}</span>
         },
       },
@@ -190,7 +199,6 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
       },
     },
   }
-
 
   return (
     <Modal
@@ -276,13 +284,13 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
             <h3 className="t-heading-5 mb4">
               {showAddBalance
                 ? intl.formatMessage({
-                    id: 'giftcard-manager.details.addBalance',
-                    defaultMessage: 'Add Balance',
-                  })
+                  id: 'giftcard-manager.details.addBalance',
+                  defaultMessage: 'Add Balance',
+                })
                 : intl.formatMessage({
-                    id: 'giftcard-manager.details.removeBalance',
-                    defaultMessage: 'Remove Balance',
-                  })}
+                  id: 'giftcard-manager.details.removeBalance',
+                  defaultMessage: 'Remove Balance',
+                })}
             </h3>
             <div className="mb5">
               <Input
@@ -290,12 +298,19 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
                   id: 'giftcard-manager.details.balanceAmount',
                   defaultMessage: 'Amount',
                 })}
-                type="number"
-                step="0.01"
+                type="text"
                 value={balanceAmount}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setBalanceAmount(e.target.value)
-                }
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const value = e.target.value
+                    .replace(/[^\d,]/g, '')
+                    .replace(/,/g, (match, offset, string) => {
+                      const beforeComma = string.substring(0, offset)
+
+                      return beforeComma.includes(',') ? '' : match
+                    })
+
+                  setBalanceAmount(value)
+                }}
                 required
               />
             </div>
@@ -373,15 +388,15 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
             )
           }
 
-          const voucher = data.voucher
+          const { voucher } = data
           const statusColor =
             voucher.status === 'active'
               ? '#79B03A'
               : voucher.status === 'expired'
-              ? '#FF4C4C'
-              : voucher.status === 'used'
-              ? '#F71963'
-              : '#CCCCCC'
+                ? '#FF4C4C'
+                : voucher.status === 'used'
+                  ? '#F71963'
+                  : '#CCCCCC'
 
           return (
             <div>
@@ -394,7 +409,9 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
                     setShowDeleteConfirm(false)
                   }}
                   className="mr3"
-                  disabled={showAddBalance || showRemoveBalance || showDeleteConfirm}
+                  disabled={
+                    showAddBalance || showRemoveBalance || showDeleteConfirm
+                  }
                 >
                   <FormattedMessage
                     id="giftcard-manager.details.addBalance"
@@ -409,7 +426,9 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
                     setShowDeleteConfirm(false)
                   }}
                   className="mr3"
-                  disabled={showAddBalance || showRemoveBalance || showDeleteConfirm}
+                  disabled={
+                    showAddBalance || showRemoveBalance || showDeleteConfirm
+                  }
                 >
                   <FormattedMessage
                     id="giftcard-manager.details.removeBalance"
@@ -423,7 +442,9 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
                     setShowAddBalance(false)
                     setShowRemoveBalance(false)
                   }}
-                  disabled={showAddBalance || showRemoveBalance || showDeleteConfirm}
+                  disabled={
+                    showAddBalance || showRemoveBalance || showDeleteConfirm
+                  }
                 >
                   <FormattedMessage
                     id="giftcard-manager.details.delete"
@@ -592,7 +613,9 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
                           />
                         </div>
                         <div className="t-body">
-                          {new Date(voucher.expirationDate).toLocaleDateString()}
+                          {new Date(
+                            voucher.expirationDate
+                          ).toLocaleDateString()}
                         </div>
                       </div>
                     </div>
@@ -650,7 +673,8 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
                           id="giftcard-manager.details.lastTransaction"
                           defaultMessage="Last Transaction"
                         />
-                        : {new Date(voucher.lastTransactionDate).toLocaleString()}
+                        :{' '}
+                        {new Date(voucher.lastTransactionDate).toLocaleString()}
                       </div>
                     </div>
                   )}

@@ -72,6 +72,15 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
       return
     }
 
+    const normalizedAmount = initialValue.replace(',', '.')
+    const parsedValue = parseFloat(normalizedAmount)
+
+    if (isNaN(parsedValue) || parsedValue <= 0) {
+      setError('Please enter a valid amount')
+
+      return
+    }
+
     setError('')
     setSuccess(false)
 
@@ -79,7 +88,7 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
       await createVoucher({
         variables: {
           input: {
-            initialValue: parseFloat(initialValue),
+            initialValue: parsedValue,
             expirationDate,
             ownerCpf: ownerCpf || undefined,
             caption: caption || undefined,
@@ -141,12 +150,19 @@ const CreateVoucherModal: React.FC<CreateVoucherModalProps> = ({
                   id: 'giftcard-manager.create.initialValue',
                   defaultMessage: 'Initial Value',
                 })}
-                type="number"
-                step="0.01"
+                type="text"
                 value={initialValue}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setInitialValue(e.target.value)
-                }
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const value = e.target.value
+                    .replace(/[^\d,]/g, '')
+                    .replace(/,/g, (match, offset, string) => {
+                      const beforeComma = string.substring(0, offset)
+
+                      return beforeComma.includes(',') ? '' : match
+                    })
+
+                  setInitialValue(value)
+                }}
                 required
               />
             </div>
