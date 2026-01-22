@@ -64,6 +64,7 @@ type Query {
   vouchers: [Voucher!]! @auth(scope: PUBLIC)
   voucher(id: ID!): Voucher @auth(scope: PUBLIC)
   searchClientByCpf(cpf: String!): [Client!]! @auth(scope: PUBLIC)
+  vouchersByUser(userId: String, cpf: String): [Voucher!]! @auth(scope: PUBLIC)
 }
 
 input AdjustBalanceInput {
