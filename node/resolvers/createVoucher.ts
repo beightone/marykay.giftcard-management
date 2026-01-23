@@ -3,13 +3,7 @@ import { randomUUID } from 'crypto'
 import { GiftCardHistoryService } from '../services/giftCardHistory'
 import type { GiftcardResponse } from '../types/giftcard.client'
 import { calculateStatus } from '../utils/calculateVoucherStats'
-import type { Context } from './types'
-import {
-  getAuthorEmail,
-  findProfileIdByCpf,
-  getClientInfo,
-  extractErrorMessage,
-} from './utils'
+import { getAuthorEmail, findProfileIdByCpf, getClientInfo } from './utils'
 import { formatExpirationDate } from './utils/date'
 
 interface CreateVoucherInput {
@@ -130,23 +124,37 @@ export const createVoucher = async (
       ownerEmail: clientInfo.email,
       ownerName: clientInfo.name,
       initialValue: input.initialValue,
-      expirationDate: input.expirationDate,
+      expirationDate: formattedExpirationDate,
       isReloadable: input.isReloadable ?? false,
       lastSyncedAt: new Date().toISOString(),
       transactions: [initialTransaction],
     }
 
-    const documentToSave = Object.fromEntries(
-      Object.entries(masterDataDocument).filter(
-        ([, value]) => value !== undefined && value !== null && value !== ''
-      )
-    )
+    const documentToSave: Record<string, unknown> = {}
 
-    await context.clients.masterdata.createDocument({
-      dataEntity: 'GiftcardManager',
-      schema: 'giftcard-manager-v1',
-      fields: documentToSave,
+    Object.entries(masterDataDocument).forEach(([key, value]) => {
+      if (value === undefined || value === null) {
+        return
+      }
+
+      if (typeof value === 'string' && value.trim() === '') {
+        return
+      }
+
+      documentToSave[key] = value
     })
+
+    try {
+      await context.clients.masterdata.createDocument({
+        dataEntity: 'GiftcardManager',
+        schema: 'giftcard-manager-v1',
+        fields: documentToSave,
+      })
+    } catch (mdError) {
+      throw new Error(
+        `Failed to save voucher to MasterData. Native Card ID: ${nativeCard.id}, error: ${mdError}`
+      )
+    }
 
     const currentBalance = nativeCard.balance || input.initialValue
     const status = calculateStatus(
@@ -175,6 +183,6 @@ export const createVoucher = async (
       )
     }
 
-    throw new Error(extractErrorMessage(error) || 'Failed to create voucher')
+    throw new Error(`Failed to create voucher: ${error}`)
   }
 }

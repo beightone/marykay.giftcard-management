@@ -1,5 +1,4 @@
 import { GiftCardHistoryService } from '../services/giftCardHistory'
-import type { Context } from './types'
 import {
   getAuthorEmail,
   searchVoucherByNativeId,

@@ -1,5 +1,4 @@
-import type { ServiceContext, RecorderState } from '@vtex/api'
-import { Service, method } from '@vtex/api'
+import { RecorderState, Service, ServiceContext, method } from '@vtex/api'
 
 import { Clients } from './clients'
 import { Query, Mutation } from './resolvers'
