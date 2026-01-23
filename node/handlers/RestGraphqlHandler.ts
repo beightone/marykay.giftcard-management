@@ -1,6 +1,6 @@
 import { json } from 'co-body'
 
-import { Query, Mutation } from '..'
+import { Query, Mutation } from '../resolvers'
 
 type ResolverMap = Record<string, any>
 
@@ -33,7 +33,10 @@ export const restQueryHandler = async (ctx: Context) => {
     ctx.body = { data: result }
   } catch (error) {
     ctx.status = 500
-    ctx.body = { error: (error as Error).message || 'Unexpected error' }
+    ctx.body = {
+      errorMessage: (error as Error).message || 'Unexpected error',
+      error,
+    }
   }
 }
 
@@ -56,6 +59,9 @@ export const restMutationHandler = async (ctx: Context) => {
     ctx.body = { data: result }
   } catch (error) {
     ctx.status = 500
-    ctx.body = { error: (error as Error).message || 'Unexpected error' }
+    ctx.body = {
+      errorMessage: (error as Error).message || 'Unexpected error',
+      error,
+    }
   }
 }
