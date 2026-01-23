@@ -2,7 +2,7 @@ import {
   calculateVoucherStats,
   calculateStatus,
 } from '../utils/calculateVoucherStats'
-import type { Context, VoucherDocument } from './types'
+import type { VoucherDocument } from './types'
 import { parseTransactions, extractErrorMessage } from './utils'
 
 export const vouchers = async (

@@ -1,8 +1,7 @@
-﻿import {
+import {
   calculateVoucherStats,
   calculateStatus,
 } from '../utils/calculateVoucherStats'
-import type { Context } from './types'
 import {
   searchVoucherByNativeId,
   searchVoucherById,

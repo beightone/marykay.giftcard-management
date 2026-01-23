@@ -1,26 +1,3 @@
-import type { MasterData } from '@vtex/api'
-
-import type { GiftCardNative } from '../clients/giftcard'
-
-export interface Context {
-  clients: {
-    giftCardNative: GiftCardNative
-    masterdata: MasterData
-  }
-  vtex: {
-    account: string
-    workspace: string
-    adminUserAuthToken?: string
-    authToken?: string
-    logger: {
-      info: (message: string | Record<string, unknown>) => void
-      warn: (message: string | Record<string, unknown>) => void
-      error: (message: string | Record<string, unknown>) => void
-      debug: (message: string | Record<string, unknown>) => void
-    }
-  }
-}
-
 // Voucher document stored in MasterData
 export interface VoucherDocument {
   id: string

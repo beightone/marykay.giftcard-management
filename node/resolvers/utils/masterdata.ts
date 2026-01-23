@@ -1,4 +1,4 @@
-import type { Context, VoucherDocument, ClientProfile } from '../types'
+import type { VoucherDocument, ClientProfile } from '../types'
 
 export const searchVoucherByNativeId = async (
   context: Context,

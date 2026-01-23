@@ -2,7 +2,7 @@ import {
   calculateVoucherStats,
   calculateStatus,
 } from '../utils/calculateVoucherStats'
-import { ClientProfile, VoucherDocument } from './types'
+import type { ClientProfile, VoucherDocument } from './types'
 import { parseTransactions, extractErrorMessage } from './utils'
 
 const findCpfByUserId = async (

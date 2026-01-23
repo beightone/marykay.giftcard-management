@@ -1,4 +1,4 @@
-import type { Context, ClientProfile } from './types'
+import type { ClientProfile } from './types'
 
 export const searchClientByCpf = async (
   _root: unknown,
@@ -6,7 +6,9 @@ export const searchClientByCpf = async (
   context: Context
 ) => {
   try {
-    const response = await context.clients.masterdata.searchDocuments<ClientProfile & { id: string }>({
+    const response = await context.clients.masterdata.searchDocuments<
+      ClientProfile & { id: string }
+    >({
       dataEntity: 'CL',
       fields: ['id', 'document', 'firstName', 'lastName', 'email'],
       where: `document=${args.cpf}`,

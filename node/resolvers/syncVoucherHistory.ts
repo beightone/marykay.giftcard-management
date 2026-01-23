@@ -1,5 +1,4 @@
 import { GiftCardHistoryService } from '../services/giftCardHistory'
-import type { Context } from './types'
 import {
   searchVoucherByNativeId,
   updateVoucherDocument,
@@ -41,7 +40,7 @@ export const syncVoucherHistory = async (
         index === 0
           ? currentBalance
           : currentBalance -
-            (nativeTx.operation === 'Debit' ? nativeTx.value : -nativeTx.value)
+          (nativeTx.operation === 'Debit' ? nativeTx.value : -nativeTx.value)
 
       const transformedTx = GiftCardHistoryService.transformNativeTransaction(
         nativeTx,
