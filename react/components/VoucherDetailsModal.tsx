@@ -194,7 +194,7 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
           defaultMessage: 'Date',
         }),
         cellRenderer: ({ cellData }: { cellData: string }) => {
-          return cellData ? new Date(cellData).toLocaleString() : 'N/A'
+          return cellData ? new Date(cellData).toLocaleString('pt-BR') : 'N/A'
         },
       },
     },
@@ -389,6 +389,7 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
           }
 
           const { voucher } = data
+
           const statusColor =
             voucher.status === 'active'
               ? '#79B03A'
@@ -510,6 +511,19 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
                           {voucher.status}
                         </div>
                       </div>
+                      {voucher.createdAt && (
+                        <div className="mb3">
+                          <div className="t-small c-muted-1 mb1">
+                            <FormattedMessage
+                              id="giftcard-manager.details.created"
+                              defaultMessage="Created"
+                            />
+                          </div>
+                          <div className="t-body">
+                            {new Date(voucher.createdAt).toLocaleDateString('pt-BR')}
+                          </div>
+                        </div>
+                      )}
                       <div className="mb3">
                         <div className="t-small c-muted-1 mb1">
                           <FormattedMessage
@@ -601,7 +615,7 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
                             />
                           </div>
                           <div className="t-body">
-                            {new Date(voucher.createdAt).toLocaleString()}
+                            {new Date(voucher.createdAt).toLocaleDateString('pt-BR')}
                           </div>
                         </div>
                       )}
@@ -615,7 +629,7 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
                         <div className="t-body">
                           {new Date(
                             voucher.expirationDate
-                          ).toLocaleDateString()}
+                          ).toLocaleDateString('pt-BR')}
                         </div>
                       </div>
                     </div>
@@ -674,7 +688,7 @@ const VoucherDetailsModal: React.FC<VoucherDetailsModalProps> = ({
                           defaultMessage="Last Transaction"
                         />
                         :{' '}
-                        {new Date(voucher.lastTransactionDate).toLocaleString()}
+                        {new Date(voucher.lastTransactionDate).toLocaleString('pt-BR')}
                       </div>
                     </div>
                   )}

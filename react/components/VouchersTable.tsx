@@ -167,7 +167,13 @@ const VouchersTable: React.FC<VouchersTableProps> = ({
       expirationDate: {
         title: 'Expiration',
         cellRenderer: ({ cellData }: { cellData: string }) => {
-          return new Date(cellData).toLocaleDateString()
+          return new Date(cellData).toLocaleDateString('pt-BR')
+        },
+      },
+      createdAt: {
+        title: 'Created',
+        cellRenderer: ({ cellData }: { cellData: string }) => {
+          return cellData ? new Date(cellData).toLocaleDateString('pt-BR') : '-'
         },
       },
     },
