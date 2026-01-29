@@ -134,7 +134,10 @@ const VouchersTable: React.FC<VouchersTableProps> = ({
   const schema = {
     properties: {
       code: {
-        title: 'Code',
+        title: intl.formatMessage({
+          id: 'giftcard-manager.table.code',
+          defaultMessage: 'Código',
+        }),
         cellRenderer: ({ cellData }: { cellData: string }) => {
           if (!cellData) return ''
 
@@ -142,13 +145,22 @@ const VouchersTable: React.FC<VouchersTableProps> = ({
         },
       },
       authorEmail: {
-        title: 'Author',
+        title: intl.formatMessage({
+          id: 'giftcard-manager.table.author',
+          defaultMessage: 'Autor',
+        }),
       },
       ownerCpf: {
-        title: 'Client (CPF)',
+        title: intl.formatMessage({
+          id: 'giftcard-manager.table.clientCpf',
+          defaultMessage: 'Cliente (CPF)',
+        }),
       },
       status: {
-        title: 'Status',
+        title: intl.formatMessage({
+          id: 'giftcard-manager.table.status',
+          defaultMessage: 'Status',
+        }),
         cellRenderer: ({ cellData }: { cellData: string }) => {
           const statusColor =
             cellData === 'active'
@@ -164,16 +176,40 @@ const VouchersTable: React.FC<VouchersTableProps> = ({
           )
         },
       },
+      createdAt: {
+        title: intl.formatMessage({
+          id: 'giftcard-manager.table.created',
+          defaultMessage: 'Criado',
+        }),
+        cellRenderer: ({ cellData }: { cellData: string }) => {
+          return cellData ? new Date(cellData).toLocaleDateString('pt-BR') : '-'
+        },
+      },
       expirationDate: {
-        title: 'Expiration',
+        title: intl.formatMessage({
+          id: 'giftcard-manager.table.expiration',
+          defaultMessage: 'Expiração',
+        }),
         cellRenderer: ({ cellData }: { cellData: string }) => {
           return new Date(cellData).toLocaleDateString('pt-BR')
         },
       },
-      createdAt: {
-        title: 'Created',
-        cellRenderer: ({ cellData }: { cellData: string }) => {
-          return cellData ? new Date(cellData).toLocaleDateString('pt-BR') : '-'
+      initialValue: {
+        title: intl.formatMessage({
+          id: 'giftcard-manager.table.initialValue',
+          defaultMessage: 'Valor Inicial',
+        }),
+        cellRenderer: ({ cellData }: { cellData: number }) => {
+          return `R$ ${(cellData ?? 0).toFixed(2).replace('.', ',')}`
+        },
+      },
+      currentBalance: {
+        title: intl.formatMessage({
+          id: 'giftcard-manager.table.currentBalance',
+          defaultMessage: 'Saldo Atual',
+        }),
+        cellRenderer: ({ cellData }: { cellData: number }) => {
+          return `R$ ${(cellData ?? 0).toFixed(2).replace('.', ',')}`
         },
       },
     },
