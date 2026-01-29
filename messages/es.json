@@ -73,5 +73,13 @@
   "giftcard-manager.create.error.required": "Valor inicial, fecha de expiración y nombre de relación son obligatorios",
   "giftcard-manager.export.preparing": "Preparando informe...",
   "giftcard-manager.export.success": "¡Informe exportado exitosamente!",
-  "giftcard-manager.export.error": "Error al exportar informe"
+  "giftcard-manager.export.error": "Error al exportar informe",
+  "giftcard-manager.table.code": "Código",
+  "giftcard-manager.table.author": "Autor",
+  "giftcard-manager.table.clientCpf": "Cliente (CPF)",
+  "giftcard-manager.table.status": "Estado",
+  "giftcard-manager.table.created": "Creado",
+  "giftcard-manager.table.expiration": "Vencimiento",
+  "giftcard-manager.table.initialValue": "Valor Inicial",
+  "giftcard-manager.table.currentBalance": "Saldo Actual"
 }
